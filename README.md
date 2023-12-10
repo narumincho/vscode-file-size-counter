@@ -1,5 +1,11 @@
 # vscode-file-size-counter
 
+
+
+https://github.com/narumincho/vscode-file-size-counter/assets/16481886/7c79661a-4191-4fa8-a94c-42a56ea31acd
+
+
+
 ## build
 
 ```sh
