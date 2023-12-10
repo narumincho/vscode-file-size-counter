@@ -25,6 +25,7 @@ const buildJavaScript = async (
     entryPoints: [url],
     // esbuild_deno_loader 内部で使われている esbuild の型のバージョンが古いため as を使用
     plugins: denoPlugins() as Plugin[],
+    jsxFactory: "h",
     write: false,
     bundle: true,
     format,
