@@ -1,0 +1,1 @@
+# vscode-file-size-counter
