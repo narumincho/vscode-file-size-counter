@@ -8,8 +8,9 @@ import {
   ExtensionContext,
   importVsCodeApi,
   Uri,
+  Webview,
 } from "https://deno.land/x/vscode@1.83.0/mod.ts";
-import { rootElementId, viewType } from "./constant.ts";
+import { Message, rootElementId, viewType } from "./constant.ts";
 import { h } from "https://esm.sh/preact@10.19.3?pin=v135";
 import { renderToString } from "https://esm.sh/preact-render-to-string@6.3.1?pin=v135";
 import { App } from "./app.tsx";
@@ -25,6 +26,23 @@ export function activate(context: ExtensionContext) {
   const eventEmitter = new vscode.EventEmitter<
     CustomDocumentContentChangeEvent<FileSizeCounterEditorDocument>
   >();
+
+  const webviewList: Array<{ readonly uri: Uri; readonly webview: Webview }> =
+    [];
+
+  vscode.workspace.onDidChangeTextDocument((e) => {
+    console.log("onDidChangeTextDocument", e.document.uri.toString());
+    for (const { uri, webview } of webviewList) {
+      if (uri.toString() === e.document.uri.toString()) {
+        const message: Message = {
+          type: "sizeChanged",
+          size: new TextEncoder().encode(e.document.getText()).length,
+        };
+        webview.postMessage(message);
+      }
+    }
+  });
+
   /**
    * https://code.visualstudio.com/api/extension-guides/custom-editors
    */
@@ -56,7 +74,7 @@ export function activate(context: ExtensionContext) {
       };
     },
     // deno-lint-ignore require-await
-    resolveCustomEditor: async (_document, webviewPanel, _token) => {
+    resolveCustomEditor: async (document, webviewPanel, _token) => {
       webviewPanel.webview.options = {
         enableScripts: true,
       };
@@ -72,12 +90,16 @@ export function activate(context: ExtensionContext) {
               <script type="module" src={scriptUri.toString()} />
             </head>
             <body>
-              <div id={rootElementId}>
-                <App />
+              <div
+                id={rootElementId}
+                data-size={`${document.originalBinary.length}`}
+              >
+                <App size={100} />
               </div>
             </body>
           </html>,
         );
+      webviewList.push({ uri: document.uri, webview: webviewPanel.webview });
     },
     saveCustomDocument: async (document, _cancellation) => {
       await vscode.workspace.fs.writeFile(
