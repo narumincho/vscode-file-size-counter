@@ -13,7 +13,7 @@ cd ./distribution
 deno run npm:@vscode/vsce package
 ```
 
-If it doesn't work... use Node.js.
+If it doesn't work... delete ./distribution/node_modules and use Node.js.
 
 ```sh
 npm install -g @vscode/vsce
