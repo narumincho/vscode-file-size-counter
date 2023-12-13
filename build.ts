@@ -1,11 +1,7 @@
 import { resolve } from "https://deno.land/std@0.208.0/path/mod.ts";
-import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.2/mod.ts";
-import {
-  build as esBuild,
-  type Plugin,
-} from "https://deno.land/x/esbuild@v0.19.7/mod.js";
 import { ensureFile } from "https://deno.land/std@0.208.0/fs/mod.ts";
 import { viewType } from "./constant.ts";
+import { bundle } from "https://deno.land/x/emit@0.32.0/mod.ts";
 
 export const writeTextFileWithLog = async (
   path: string,
@@ -17,30 +13,12 @@ export const writeTextFileWithLog = async (
   console.log(path.toString() + " に書き込み完了!");
 };
 
-const buildJavaScript = async (
-  url: string,
-  format: "cjs" | "esm"
-): Promise<string> => {
-  const esbuildResult = await esBuild({
-    entryPoints: [url],
-    // esbuild_deno_loader 内部で使われている esbuild の型のバージョンが古いため as を使用
-    plugins: denoPlugins() as Plugin[],
-    jsxFactory: "h",
-    write: false,
-    bundle: true,
-    format,
-    target: ["node18", "chrome120"],
-  });
-
-  for (const esbuildResultFile of esbuildResult.outputFiles ?? []) {
-    if (esbuildResultFile.path === "<stdout>") {
-      const scriptContent = new TextDecoder().decode(
-        esbuildResultFile.contents
-      );
-      return scriptContent;
-    }
-  }
-  throw new Error("esbuild で <stdout> の出力を取得できなかった...");
+const buildJavaScript = async (url: string): Promise<string> => {
+  return (
+    await bundle(url, {
+      compilerOptions: { jsxFactory: "h" },
+    })
+  ).code;
 };
 
 const distributionPath = "./distribution";
@@ -49,11 +27,11 @@ const mainScriptRelativePath = "./main.js";
 await Promise.all([
   writeTextFileWithLog(
     resolve(distributionPath, mainScriptRelativePath),
-    await buildJavaScript("./main.tsx", "cjs")
+    await buildJavaScript("./main.tsx")
   ),
   writeTextFileWithLog(
     resolve(distributionPath, "client.js"),
-    await buildJavaScript("./client.tsx", "esm")
+    await buildJavaScript("./client.tsx")
   ),
   writeTextFileWithLog(
     resolve(distributionPath, "./package.json"),
@@ -100,6 +78,3 @@ await Promise.all([
 `
   ),
 ]);
-
-// esbuild の影響で停止しないため
-Deno.exit();

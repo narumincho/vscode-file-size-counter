@@ -15,7 +15,7 @@ import { h } from "https://esm.sh/preact@10.19.3?pin=v135";
 import { renderToString } from "https://esm.sh/preact-render-to-string@6.3.1?pin=v135";
 import { App } from "./app.tsx";
 
-export function activate(context: ExtensionContext) {
+function activate(context: ExtensionContext) {
   const vscode = importVsCodeApi();
   if (vscode === undefined) {
     throw new Error(
@@ -127,4 +127,12 @@ export function activate(context: ExtensionContext) {
 
 export type FileSizeCounterEditorDocument = CustomDocument & {
   originalBinary: Uint8Array;
+};
+
+declare global {
+  let module: { exports: { activate: typeof activate } };
+}
+
+module.exports = {
+  activate: activate,
 };
