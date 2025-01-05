@@ -1,4 +1,4 @@
-import { h } from "https://esm.sh/preact@10.19.3?pin=v135";
+import { h } from "npm:preact";
 
 export const App = (props: {
   readonly size: number;

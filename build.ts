@@ -1,7 +1,7 @@
-import { resolve } from "https://deno.land/std@0.208.0/path/mod.ts";
-import { ensureFile } from "https://deno.land/std@0.208.0/fs/mod.ts";
+import { resolve } from "jsr:@std/path";
+import { ensureFile } from "jsr:@std/fs";
 import { viewType } from "./constant.ts";
-import { bundle } from "https://deno.land/x/emit@0.32.0/mod.ts";
+import { bundle } from "jsr:@deno/emit";
 
 export const writeTextFileWithLog = async (
   path: string,

@@ -1,11 +1,11 @@
 import type { WebviewApi } from "npm:@types/vscode-webview@1.57.1";
-import { h, hydrate } from "https://esm.sh/preact@10.19.3?pin=v135";
+import { h, hydrate } from "npm:preact";
 import { App } from "./app.tsx";
 import { Message, rootElementId } from "./constant.ts";
 import {
   useEffect,
   useState,
-} from "https://esm.sh/preact@10.19.3/hooks?pin=v135";
+} from "npm:preact/hooks";
 
 const getAcquireVsCodeApi = (): WebviewApi<unknown> | undefined => {
   if (typeof window.acquireVsCodeApi === "function") {

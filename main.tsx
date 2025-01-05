@@ -9,10 +9,10 @@ import {
   importVsCodeApi,
   Uri,
   Webview,
-} from "https://deno.land/x/vscode@1.83.0/mod.ts";
+} from "jsr:@narumincho/vscode";
 import { Message, rootElementId, viewType } from "./constant.ts";
-import { h } from "https://esm.sh/preact@10.19.3?pin=v135";
-import { renderToString } from "https://esm.sh/preact-render-to-string@6.3.1?pin=v135";
+import { h } from "npm:preact";
+import { renderToString } from "npm:preact-render-to-string";
 import { App } from "./app.tsx";
 
 function activate(context: ExtensionContext) {
