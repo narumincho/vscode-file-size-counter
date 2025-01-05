@@ -1,11 +1,12 @@
 import { resolve } from "jsr:@std/path";
 import { ensureFile } from "jsr:@std/fs";
 import { viewType } from "./constant.ts";
-import { bundle } from "jsr:@deno/emit";
+import * as esbuild from "npm:esbuild";
+import { denoPlugins } from "jsr:@luca/esbuild-deno-loader";
 
 export const writeTextFileWithLog = async (
   path: string,
-  content: string
+  content: string,
 ): Promise<void> => {
   console.log(path.toString() + " に書き込み中... " + content.length + "文字");
   await ensureFile(path);
@@ -14,11 +15,18 @@ export const writeTextFileWithLog = async (
 };
 
 const buildJavaScript = async (url: string): Promise<string> => {
-  return (
-    await bundle(url, {
-      compilerOptions: { jsxFactory: "h" },
-    })
-  ).code;
+  const buildResult = await esbuild.build({
+    entryPoints: [url],
+    plugins: denoPlugins({}),
+    bundle: true,
+    write: false,
+    
+  });
+  const code = buildResult.outputFiles[0]?.text;
+  if (code === undefined) {
+    throw new Error("code is undefined");
+  }
+  return code;
 };
 
 const distributionPath = "./distribution";
@@ -27,11 +35,11 @@ const mainScriptRelativePath = "./main.js";
 await Promise.all([
   writeTextFileWithLog(
     resolve(distributionPath, mainScriptRelativePath),
-    await buildJavaScript("./main.tsx")
+    await buildJavaScript("./main.tsx"),
   ),
   writeTextFileWithLog(
     resolve(distributionPath, "client.js"),
-    await buildJavaScript("./client.tsx")
+    await buildJavaScript("./client.tsx"),
   ),
   writeTextFileWithLog(
     resolve(distributionPath, "./package.json"),
@@ -70,11 +78,11 @@ await Promise.all([
       },
       browser: mainScriptRelativePath,
       publisher: "narumincho",
-    })
+    }),
   ),
   writeTextFileWithLog(
     resolve(distributionPath, "README.md"),
     `file-size-counter
-`
+`,
   ),
 ]);

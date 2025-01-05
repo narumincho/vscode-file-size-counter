@@ -125,7 +125,7 @@ function activate(context: ExtensionContext) {
   context.subscriptions.push(provider);
 }
 
-export type FileSizeCounterEditorDocument = CustomDocument & {
+type FileSizeCounterEditorDocument = CustomDocument & {
   originalBinary: Uint8Array;
 };
 
@@ -134,5 +134,5 @@ declare global {
 }
 
 module.exports = {
-  activate: activate,
+  activate,
 };
